@@ -1,7 +1,6 @@
 <?php
 
 use App\Enum\Status;
-use App\RecordAction;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -25,7 +24,7 @@ return new class extends Migration
             $table->integer('late_minutes')->unsigned()->nullable();
             $table->integer('early_departure_minutes')->unsigned()->nullable();
             $table->integer('overtime_minutes')->unsigned()->nullable();
-            $table->enum('status', Status::cases())->default(Status::PRESENT);
+            $table->enum('status', array_column(Status::cases(), 'value'));
             $table->json('remarks')->nullable();
             $table->timestamps();
         });
