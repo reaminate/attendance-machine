@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CreateAttendanceRecord;
+use App\Events\UpdateAttendanceRecord;
+use App\Http\Resources\AttendanceRecordResource;
+use App\Models\Attendance;
 use App\Models\AttendanceRecord;
 use App\Http\Requests\StoreAttendanceRecordRequest;
 use App\Http\Requests\UpdateAttendanceRecordRequest;
+use App\Models\Employee;
+use App\Models\EmployeeShiftAssignment;
 
 class AttendanceRecordController extends Controller
 {
@@ -13,23 +19,25 @@ class AttendanceRecordController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $attendanceRecords = AttendanceRecord::query()
+        ->withMin(['attendances' => fn ($query) => $query
+            ->whereColumn('attendances.logged_at', '>=', 'attendance_records.shift_date'),
+        ], 'logged_at')
+        ->orderBy('attendances_min_logged_at')
+        ->orderBy('id')
+        ->get();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return AttendanceRecordResource::collection($attendanceRecords);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAttendanceRecordRequest $request)
+    public function store()
     {
-        //
+        CreateAttendanceRecord::dispatch();
+
+        return response('', 201);
     }
 
     /**
@@ -41,19 +49,13 @@ class AttendanceRecordController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(AttendanceRecord $attendanceRecord)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAttendanceRecordRequest $request, AttendanceRecord $attendanceRecord)
+    public function update()
     {
-        //
+        UpdateAttendanceRecord::dispatch();
+
+        return response('', 200);
     }
 
     /**

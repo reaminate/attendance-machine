@@ -1,6 +1,6 @@
 <?php
 
-use App\RecordAction;
+use App\Enum\RecordAction;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->enum('action', RecordAction::cases())->default(RecordAction::IN);
-            $table->date('logged_at');
+            $table->dateTime('logged_at');
             $table->timestamps();
         });
     }

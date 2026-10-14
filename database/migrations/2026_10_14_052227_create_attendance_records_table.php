@@ -19,14 +19,14 @@ return new class extends Migration
             $table->foreignId('shift_id')->constrained('shifts')->cascadeOnDelete();
             $table->date('shift_date');
             $table->unique(['employee_id', 'shift_id', 'shift_date']);
-            $table->time('first_in')->nullable();
-            $table->time('last_out')->nullable();
-            $table->integer('worked_minutes')->unsigned();
-            $table->integer('late_minutes')->unsigned();
-            $table->integer('early_departure_minutes')->unsigned();
-            $table->integer('overtime_minutes')->unsigned();
+            $table->dateTime('first_in')->nullable();
+            $table->dateTime('last_out')->nullable();
+            $table->integer('worked_minutes')->unsigned()->nullable();
+            $table->integer('late_minutes')->unsigned()->nullable();
+            $table->integer('early_departure_minutes')->unsigned()->nullable();
+            $table->integer('overtime_minutes')->unsigned()->nullable();
             $table->enum('status', Status::cases())->default(Status::PRESENT);
-            $table->json('remarks');
+            $table->json('remarks')->nullable();
             $table->timestamps();
         });
     }

@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Enum;
 
-enum RecordAction
+enum RecordAction: string
 {
-    //
+    case IN = 'in';
+    case OUT = 'out';
 }
