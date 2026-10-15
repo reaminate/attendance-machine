@@ -199,7 +199,7 @@ class UpdatingFirstInLastOut
             ];
             $status = match (true) {
                 $metrics['worked_minutes'] >= $shift->minimum_full_day_minutes => Status::PRESENT,
-                $metrics['worked_minutes'] >= $shift->minimum_half_day_minutes => Status::HALF_DAY,
+                $metrics['worked_minutes'] > $shift->minimum_half_day_minutes => Status::HALF_DAY,
                 default => Status::INSUFFICIENT_HOURS,
             };
         }
