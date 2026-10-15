@@ -12,7 +12,7 @@ class ArrivalWithinGraceTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Arriving at 09:10 is within grace so late minutes are zero, but the missed ten minutes still reduce worked time.
+     * Arriving at 09:10 is within grace so late minutes are zero.
      */
     public function test_arrival_within_grace_gives_zero_late_minutes_but_reduces_worked_minutes(): void
     {

@@ -41,7 +41,7 @@ class AbsenceTest extends TestCase
      */
     public function test_employee_without_shift_assignment_gets_no_record(): void
     {
-        Employee::create(['name' => 'Unassigned', 'employee_code' => 'EMP001']);
+        Employee::create(['name' => 'employee 1', 'employee_code' => 'EMP001']);
 
         $this->artisan('attendance:generate', [
             'from' => '2026-10-01',
