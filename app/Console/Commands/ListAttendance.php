@@ -45,8 +45,7 @@ class ListAttendance extends Command
             ->when($from, fn ($query) => $query->whereDate('shift_date', '>=', $from))
             ->when($to, fn ($query) => $query->whereDate('shift_date', '<=', $to))
             ->when($employeeIds, fn ($query) => $query->whereIn('employee_id', $employeeIds))
-            ->orderBy('shift_date')
-            ->orderBy('employee_id')
+            ->orderedByFirstLog()
             ->get();
 
         $this->line(json_encode(AttendanceRecordResource::collection($records)->resolve(), JSON_PRETTY_PRINT));

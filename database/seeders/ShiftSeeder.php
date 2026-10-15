@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Shift;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\SimpleExcel\SimpleExcelReader;
 
@@ -16,18 +15,25 @@ class ShiftSeeder extends Seeder
     {
         $path = 'shifts.csv';
         $rows = SimpleExcelReader::create($path)->getRows();
-        $ordered_rows = $rows->collect()->sortBy('id');
-        $ordered_rows->each(function(array $ordered_rows){
-            Shift::fillAndInsert([
-                'name' => $ordered_rows['name'],
-                'start_time' => $ordered_rows['start_time'],
-                'end_time' => $ordered_rows['end_time'],
-                'grace_minutes' => $ordered_rows['grace_minutes'],
-                'break_minutes' => $ordered_rows['break_minutes'],
-                'minimum_half_day_minutes' => $ordered_rows['minimum_half_day_minutes'],
-                'minimum_full_day_minutes' => $ordered_rows['minimum_full_day_minutes'],
+        $shifts = $rows->collect()
+            ->sortBy('id')
+            ->map(fn (array $row): array => [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'start_time' => $row['start_time'],
+                'end_time' => $row['end_time'],
+                'grace_minutes' => $row['grace_minutes'],
+                'break_minutes' => $row['break_minutes'],
+                'minimum_half_day_minutes' => $row['minimum_half_day_minutes'],
+                'minimum_full_day_minutes' => $row['minimum_full_day_minutes'],
+            ])
+            ->values()
+            ->all();
 
-            ]);
-        });
+        Shift::upsert(
+            $shifts,
+            uniqueBy: ['id'],
+            update: ['name', 'start_time', 'end_time', 'grace_minutes', 'break_minutes', 'minimum_half_day_minutes', 'minimum_full_day_minutes'],
+        );
     }
 }

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Enum\RecordAction;
 use App\Models\Attendance;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\SimpleExcel\SimpleExcelReader;
 
@@ -17,13 +16,21 @@ class AttendanceSeeder extends Seeder
     {
         $path = 'attendance_logs.csv';
         $rows = SimpleExcelReader::create($path)->getRows();
-        $ordered_rows = $rows->collect()->sortBy('id');
-        $ordered_rows->each(function(array $ordered_rows){
-            Attendance::fillAndInsert([
-                'employee_id' => $ordered_rows['employee_id'],
-                'action' => ($ordered_rows['action'] === 'IN')? RecordAction::IN : RecordAction::OUT,
-                'logged_at' => $ordered_rows['logged_at'],
-            ]);
-        });
+        $attendances = $rows->collect()
+            ->sortBy('id')
+            ->map(fn (array $row): array => [
+                'id' => $row['id'],
+                'employee_id' => $row['employee_id'],
+                'action' => ($row['action'] === 'IN') ? RecordAction::IN->value : RecordAction::OUT->value,
+                'logged_at' => $row['logged_at'],
+            ])
+            ->values()
+            ->all();
+
+        Attendance::upsert(
+            $attendances,
+            uniqueBy: ['id'],
+            update: ['employee_id', 'action', 'logged_at'],
+        );
     }
 }

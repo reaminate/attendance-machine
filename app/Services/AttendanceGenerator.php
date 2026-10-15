@@ -16,7 +16,7 @@ class AttendanceGenerator
 
     /**
      * @param  array<int, int>  $employeeIds
-     * @return array{summary: array{processed: int, created: int, updated: int, absent: int, incomplete: int, needs_review: int, failed: int, errors: array<int, array{assignment_id: int, error: string}>}, records: Collection<int, AttendanceRecord>}
+     * @return array{summary: array{processed: int, created: int, updated: int, insufficient_hours: int, absent: int, incomplete: int, needs_review: int, failed: int, errors: array<int, array{assignment_id: int, error: string}>}, records: Collection<int, AttendanceRecord>}
      */
     public function generate(CarbonInterface $from, CarbonInterface $to, array $employeeIds = []): array
     {
@@ -24,6 +24,7 @@ class AttendanceGenerator
             'processed' => 0,
             'created' => 0,
             'updated' => 0,
+            'insufficient_hours' => 0,
             'absent' => 0,
             'incomplete' => 0,
             'needs_review' => 0,
@@ -62,6 +63,7 @@ class AttendanceGenerator
                 $summary[$record->wasRecentlyCreated ? 'created' : 'updated']++;
 
                 match ($record->status) {
+                    Status::INSUFFICIENT_HOURS => $summary['insufficient_hours']++,
                     Status::ABSENT => $summary['absent']++,
                     Status::INCOMPLETE => $summary['incomplete']++,
                     Status::NEEDS_REVIEW => $summary['needs_review']++,

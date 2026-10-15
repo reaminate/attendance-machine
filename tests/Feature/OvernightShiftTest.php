@@ -2,34 +2,38 @@
 
 namespace Tests\Feature;
 
+use App\Enum\Status;
 use App\Models\AttendanceRecord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class OvernightShiftTest extends TestCase
 {
     use RefreshDatabase;
+
     /**
-     * A test to check if overnight shift gives correct last out time
+     * A 22:00–06:00 shift pairs the OUT on the next day and stores the record under the shift start date.
      */
-    public function test_if_overnight_shift_gives_correct_stats(): void
+    public function test_overnight_shift_pairs_across_midnight_under_the_start_date(): void
     {
-        $this->seed();
+        $employee = $this->createAssignedEmployee($this->createNightShift());
+        $this->logSessions($employee, [
+            ['2026-10-01 22:00:00', '2026-10-02 06:00:00'],
+        ]);
+
         $this->artisan('attendance:generate', [
             'from' => '2026-10-01',
             'to' => '2026-10-01',
         ])->assertSuccessful();
 
-        AttendanceRecord::where('shift_id', 2)
-        ->each(function($query){
-            $start_date = $query->first_in->format('Y-m-d');
-            $end_date = $query->last_out->format('Y-m-d');
-            $end_time = $query->last_out->format('H-i');
-            $this->assertSame($query->shift_date->format('Y-m-d'), $start_date);
-            $this->assertSame($query->shift_date->addDay()->format('Y-m-d'), $end_date);
-            $this->assertSame('06-00', $end_time);
-            $this->assertSame(420, $query->worked_minutes);
-        });
+        $record = AttendanceRecord::where('employee_id', $employee->id)->sole();
+        $this->assertSame('2026-10-01', $record->shift_date->format('Y-m-d'));
+        $this->assertSame('2026-10-01 22:00', $record->first_in->format('Y-m-d H:i'));
+        $this->assertSame('2026-10-02 06:00', $record->last_out->format('Y-m-d H:i'));
+        $this->assertSame(420, $record->worked_minutes);
+        $this->assertSame(0, $record->late_minutes);
+        $this->assertSame(0, $record->early_departure_minutes);
+        $this->assertSame(0, $record->overtime_minutes);
+        $this->assertSame(Status::PRESENT, $record->status);
     }
 }

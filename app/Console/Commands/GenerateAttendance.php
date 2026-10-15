@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Resources\AttendanceRecordResource;
+use App\Models\AttendanceRecord;
 use App\Services\AttendanceGenerator;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Attributes\Description;
@@ -44,9 +45,14 @@ class GenerateAttendance extends Command
             array_map('intval', $this->option('employee')),
         );
 
+        $records = AttendanceRecord::query()
+            ->whereKey($result['records']->pluck('id'))
+            ->orderedByFirstLog()
+            ->get();
+
         $this->line(json_encode([
             'summary' => $result['summary'],
-            'records' => AttendanceRecordResource::collection($result['records'])->resolve(),
+            'records' => AttendanceRecordResource::collection($records)->resolve(),
         ], JSON_PRETTY_PRINT));
 
         return $result['summary']['failed'] > 0 ? self::FAILURE : self::SUCCESS;

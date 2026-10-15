@@ -6,6 +6,8 @@ use App\Casts\DateCast;
 use App\Enum\Status;
 use Database\Factories\AttendanceRecordFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -54,5 +56,21 @@ class AttendanceRecord extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class, 'employee_id', 'employee_id');
+    }
+
+    /**
+     * Order the records by their first machine log on or after the shift date.
+     *
+     * @param  Builder<AttendanceRecord>  $query
+     */
+    #[Scope]
+    protected function orderedByFirstLog(Builder $query): void
+    {
+        $query
+            ->withMin(['attendances' => fn ($query) => $query
+                ->whereColumn('attendances.logged_at', '>=', 'attendance_records.shift_date'),
+            ], 'logged_at')
+            ->orderBy('attendances_min_logged_at')
+            ->orderBy('id');
     }
 }

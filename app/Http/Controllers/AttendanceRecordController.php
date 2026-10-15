@@ -19,11 +19,7 @@ class AttendanceRecordController extends Controller
     public function index()
     {
         $attendanceRecords = AttendanceRecord::query()
-            ->withMin(['attendances' => fn ($query) => $query
-                ->whereColumn('attendances.logged_at', '>=', 'attendance_records.shift_date'),
-            ], 'logged_at')
-            ->orderBy('attendances_min_logged_at')
-            ->orderBy('id')
+            ->orderedByFirstLog()
             ->get();
 
         return AttendanceRecordResource::collection($attendanceRecords);
