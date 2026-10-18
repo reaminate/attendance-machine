@@ -25,7 +25,7 @@ class EmployeeShiftAssignmentSeeder extends Seeder
             ])
             ->values()
             ->all();
-
+        EmployeeShiftAssignment::whereNotIn('id', ['id'])->delete();
         EmployeeShiftAssignment::upsert(
             $assignments,
             uniqueBy: ['id'],

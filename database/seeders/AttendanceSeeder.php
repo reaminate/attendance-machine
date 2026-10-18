@@ -26,11 +26,11 @@ class AttendanceSeeder extends Seeder
             ])
             ->values()
             ->all();
-
+        Attendance::whereNotIn('id', ['id'])->delete();
         Attendance::upsert(
             $attendances,
-            uniqueBy: ['id'],
-            update: ['employee_id', 'action', 'logged_at'],
+            ['id'],
+            ['employee_id', 'action', 'logged_at'],
         );
     }
 }

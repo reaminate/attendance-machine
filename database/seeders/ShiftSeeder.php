@@ -29,7 +29,7 @@ class ShiftSeeder extends Seeder
             ])
             ->values()
             ->all();
-
+        Shift::whereNotIn('id', ['id'])->delete();
         Shift::upsert(
             $shifts,
             uniqueBy: ['id'],
