@@ -27,8 +27,8 @@ class EmployeeSeeder extends Seeder
         Employee::whereNotIn('id', ['id'])->delete();
         Employee::upsert(
             $employees,
-            uniqueBy: ['id'],
-            update: ['name', 'employee_code'],
+            ['id'],
+            ['name', 'employee_code'],
         );
     }
 }

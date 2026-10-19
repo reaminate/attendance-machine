@@ -14,6 +14,7 @@ class ShiftSeeder extends Seeder
     public function run(): void
     {
         $path = 'shifts.csv';
+        
         $rows = SimpleExcelReader::create($path)->getRows();
         $shifts = $rows->collect()
             ->sortBy('id')
@@ -32,8 +33,8 @@ class ShiftSeeder extends Seeder
         Shift::whereNotIn('id', ['id'])->delete();
         Shift::upsert(
             $shifts,
-            uniqueBy: ['id'],
-            update: ['name', 'start_time', 'end_time', 'grace_minutes', 'break_minutes', 'minimum_half_day_minutes', 'minimum_full_day_minutes'],
+            ['id'],
+            ['name', 'start_time', 'end_time', 'grace_minutes', 'break_minutes', 'minimum_half_day_minutes', 'minimum_full_day_minutes'],
         );
     }
 }

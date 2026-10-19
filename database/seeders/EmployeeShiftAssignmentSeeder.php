@@ -28,8 +28,8 @@ class EmployeeShiftAssignmentSeeder extends Seeder
         EmployeeShiftAssignment::whereNotIn('id', ['id'])->delete();
         EmployeeShiftAssignment::upsert(
             $assignments,
-            uniqueBy: ['id'],
-            update: ['employee_id', 'shift_id', 'shift_date'],
+            ['id'],
+            ['employee_id', 'shift_id', 'shift_date'],
         );
     }
 }
